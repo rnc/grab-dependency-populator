@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2020 Red Hat, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.redhat.rcm</groupId>
+    <artifactId>redhat-releng-tools</artifactId>
+    <version>7</version>
+  </parent>
+
+  <groupId>org.goots.maven.extensions</groupId>
+  <artifactId>grab-dependency-populator</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>Grab Dependency Populator</name>
+  <description>Maven extension to scan a path for @Grab annotations and add them to the project dependencies</description>
+  <inceptionYear>2020</inceptionYear>
+  <url>http://github.com/rnc/alt-deploy-maven-extension</url>
+
+  <licenses>
+    <license>
+      <name>APLv2.0</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>rnc</id>
+      <name>Nick Cross</name>
+      <email>ncross@redhat.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/rnc/grab-dependency-populator.git</connection>
+    <developerConnection>scm:git:git@github.com:rnc/grab-dependency-populator.git</developerConnection>
+    <url>http://github.com/rnc/grab-dependency-populator</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <projectOwner>Red Hat, Inc.</projectOwner>
+
+    <javaVersion>1.8</javaVersion>
+    <javaTestVersion>${javaVersion}</javaTestVersion>
+    <mavenVersion>3.3.1</mavenVersion>
+
+    <it.maven.home>${project.build.directory}/apache-maven-${mavenVersion}</it.maven.home>
+    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+    <itPomIncludes>*</itPomIncludes>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-model</artifactId>
+        <version>${mavenVersion}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${mavenVersion}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-artifact</artifactId>
+        <version>${mavenVersion}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.10</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.25</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.commonjava.maven.atlas</groupId>
+        <artifactId>atlas-identities</artifactId>
+        <version>0.17.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.ivy</groupId>
+        <artifactId>ivy</artifactId>
+        <version>2.4.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>2.4.18</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.stefanbirkner</groupId>
+        <artifactId>system-rules</artifactId>
+        <version>1.18.0</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.maven.atlas</groupId>
+      <artifactId>atlas-identities</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+    </dependency>
+    <dependency>
+    <groupId>org.codehaus.groovy</groupId>
+    <artifactId>groovy-all</artifactId>
+    </dependency>
+    <dependency>
+    <groupId>org.apache.ivy</groupId>
+    <artifactId>ivy</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <configuration>
+            <header>APACHE-2-SIMPLIFIED-COPYRIGHT.txt</header>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <mavenExecutorId>forked-path</mavenExecutorId>
+            <useReleaseProfile>false</useReleaseProfile>
+            <arguments>-Prelease,run-its</arguments>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.sisu</groupId>
+        <artifactId>sisu-maven-plugin</artifactId>
+        <version>0.3.3</version>
+        <executions>
+          <execution>
+            <id>generate-index</id>
+            <goals>
+              <goal>main-index</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-shade-plugin</artifactId>-->
+<!--        <version>3.2.1</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <phase>package</phase>-->
+<!--            <goals>-->
+<!--              <goal>shade</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <artifactSet>-->
+<!--                <includes>-->
+<!--                  <include>org.goots.maven.extensions:*</include>-->
+<!--                  <include>javax.inject:*</include>-->
+<!--                  <include>org.commonjava.*:*</include>-->
+<!--                  <include>commons-lang:commons-lang</include>-->
+<!--                </includes>-->
+<!--              </artifactSet>-->
+<!--              <filters>-->
+<!--                <filter>-->
+<!--                  <artifact>*:*:</artifact>-->
+<!--                  <excludes>-->
+<!--                    <exclude>META-INF/*.RSA</exclude>-->
+<!--                    <exclude>META-INF/*.SF</exclude>-->
+<!--                  </excludes>-->
+<!--                </filter>-->
+<!--              </filters>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>run-its</id>
+      <build>
+        <plugins>
+<!--          <plugin>-->
+<!--            <groupId>org.apache.maven.plugins</groupId>-->
+<!--            <artifactId>maven-dependency-plugin</artifactId>-->
+<!--            <version>3.1.1</version>-->
+<!--            <executions>-->
+<!--              <execution>-->
+<!--                <id>unpack-maven</id>-->
+<!--                <phase>pre-integration-test</phase>-->
+<!--                <goals>-->
+<!--                  <goal>unpack-dependencies</goal>-->
+<!--                </goals>-->
+<!--                <configuration>-->
+<!--                  <includeArtifactIds>apache-maven</includeArtifactIds>-->
+<!--                  <includeClassifiers>bin</includeClassifiers>-->
+<!--                  <includeTypes>zip</includeTypes>-->
+<!--                  <outputDirectory>${project.build.directory}</outputDirectory>-->
+<!--                </configuration>-->
+<!--              </execution>-->
+<!--            </executions>-->
+<!--          </plugin>-->
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-ext</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${it.maven.home}/lib/ext</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.directory}</directory>
+                      <include>grab-dependency-populator-${project.version}.jar</include>
+                      <filtering>false</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>3.0.1</version>
+            <executions>
+              <execution>
+                <id>integration-test-1</id>
+                <goals>
+                  <goal>run</goal>
+                  <goal>verify</goal>
+                </goals>
+                <configuration>
+                  <debug>true</debug>
+                  <showErrors>true</showErrors>
+                  <addTestClassPath>true</addTestClassPath>
+                  <cloneProjectsTo>${project.build.directory}/it-1</cloneProjectsTo>
+                  <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
+                  <mavenHome>${it.maven.home}</mavenHome>
+                  <projectsDirectory>src/it</projectsDirectory>
+                  <settingsFile>src/it/settings.xml</settingsFile>
+                   <showVersion>true</showVersion>
+                  <!-- <mavenExecutable>mvnDebug</mavenExecutable> -->
+                  <filterProperties>
+                    <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
+                 </filterProperties>
+                  <pomIncludes>
+                    <pomInclude>${itPomIncludes}/pom.xml</pomInclude>
+                  </pomIncludes>
+                  <pomExcludes>
+                    <pomExclude>activation-modern-profile/pom.xml</pomExclude>
+                  </pomExcludes>
+                  <postBuildHookScript>verify</postBuildHookScript>
+                </configuration>
+              </execution>
+              <execution>
+                <id>integration-test-2</id>
+                <goals>
+                  <goal>run</goal>
+                  <goal>verify</goal>
+                </goals>
+                <configuration>
+                  <debug>true</debug>
+                  <showErrors>true</showErrors>
+                  <addTestClassPath>true</addTestClassPath>
+                  <cloneProjectsTo>${project.build.directory}/it-2</cloneProjectsTo>
+                  <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
+                  <mavenHome>${it.maven.home}</mavenHome>
+                  <projectsDirectory>src/it</projectsDirectory>
+                  <settingsFile>src/it/settings-profile.xml</settingsFile>
+                  <showVersion>true</showVersion>
+                  <!-- <mavenExecutable>mvnDebug</mavenExecutable> -->
+                  <filterProperties>
+                    <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
+                  </filterProperties>
+                  <pomIncludes>
+                    <pomInclude>activation-modern-profile/pom.xml</pomInclude>
+                  </pomIncludes>
+                  <postBuildHookScript>verify</postBuildHookScript>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
