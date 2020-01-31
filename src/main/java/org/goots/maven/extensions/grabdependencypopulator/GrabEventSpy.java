@@ -31,6 +31,7 @@ import java.util.HashMap;
 
 import static org.apache.maven.execution.ExecutionEvent.Type.SessionStarted;
 
+@SuppressWarnings( "unused" )
 @Named
 @Singleton
 public class GrabEventSpy
@@ -43,6 +44,7 @@ public class GrabEventSpy
 
     private final GrabParser grabParser;
 
+    @SuppressWarnings( "unused" )
     @Inject
     public GrabEventSpy( GrabParser lp)
     {
@@ -69,8 +71,11 @@ public class GrabEventSpy
                     logger.info( "Activating GrabDependencyPopulator extension {}", Utils.getManifestInformation() );
                     MavenProject p = ee.getProject();
                     HashMap<ProjectRef, Dependency> dependencies = grabParser.searchGroovyFiles( p.getBasedir() );
-                    logger.info ("Adding to project the dependencies {} ", dependencies.values());
-                    p.getDependencies().addAll( dependencies.values() );
+                    if ( dependencies.size() > 0 )
+                    {
+                        logger.info( "Adding to project the dependencies {} ", dependencies.values() );
+                        p.getDependencies().addAll( dependencies.values() );
+                    }
                 }
                 catch ( IOException e )
                 {

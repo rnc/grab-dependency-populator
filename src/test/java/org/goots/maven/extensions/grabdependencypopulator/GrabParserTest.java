@@ -45,8 +45,6 @@ public class GrabParserTest
 
         final File target = new File( resource.getPath() ).getParentFile();
 
-        System.out.println( "target is " + target );
-
         GrabParser p = new GrabParser();
         HashMap<ProjectRef, Dependency> dependencies = p.searchGroovyFiles( target );
 

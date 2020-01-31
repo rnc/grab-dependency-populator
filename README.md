@@ -5,9 +5,9 @@
 
 ## Overview
 
-This extension will activate implicitly once configured. It will scan
-the source recursively and locate any `@Grab` annotations. These will be parsed and the resulting dependency added to the Maven
-project dependencies.
+This extension will activate implicitly once configured. It will scan the source
+recursively and locate any `@Grab` annotations. These will be parsed and the
+resulting dependency added to the Maven project dependencies.
 
 ## Installation
 
@@ -30,7 +30,14 @@ A typical extension file is:
 &lt;/extensions&gt;
 </code></pre>
 
+It may also be installed in `<maven-installation>/lib/ext` using the `jar-with-dependencies` version.
+
 ## Configuration
 
 There is no configuration required for this plugin. It can be disabled
 by setting `grab.extension.disable` to true.
+
+
+## Future:
+
+* Handle GrabResolvers as well and add the repositories to the Maven project.

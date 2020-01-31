@@ -111,8 +111,22 @@
         <groupId>org.commonjava.maven.atlas</groupId>
         <artifactId>atlas-identities</artifactId>
         <version>0.17.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>apache-maven</artifactId>
+        <version>${mavenVersion}</version>
+        <type>zip</type>
+        <classifier>bin</classifier>
+        <scope>test</scope>
+      </dependency>
       <dependency>
         <groupId>org.apache.ivy</groupId>
         <artifactId>ivy</artifactId>
@@ -122,7 +136,7 @@
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>2.4.18</version>
+        <version>2.4.8</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -135,6 +149,18 @@
         <groupId>com.github.stefanbirkner</groupId>
         <artifactId>system-rules</artifactId>
         <version>1.18.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>1.2.3</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -162,8 +188,28 @@
       <artifactId>maven-model</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>apache-maven</artifactId>
+      <type>zip</type>
+      <classifier>bin</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -174,12 +220,12 @@
       <artifactId>system-rules</artifactId>
     </dependency>
     <dependency>
-    <groupId>org.codehaus.groovy</groupId>
-    <artifactId>groovy-all</artifactId>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
     </dependency>
     <dependency>
-    <groupId>org.apache.ivy</groupId>
-    <artifactId>ivy</artifactId>
+      <groupId>org.apache.ivy</groupId>
+      <artifactId>ivy</artifactId>
     </dependency>
   </dependencies>
 
@@ -219,38 +265,28 @@
           </execution>
         </executions>
       </plugin>
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-shade-plugin</artifactId>-->
-<!--        <version>3.2.1</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <phase>package</phase>-->
-<!--            <goals>-->
-<!--              <goal>shade</goal>-->
-<!--            </goals>-->
-<!--            <configuration>-->
-<!--              <artifactSet>-->
-<!--                <includes>-->
-<!--                  <include>org.goots.maven.extensions:*</include>-->
-<!--                  <include>javax.inject:*</include>-->
-<!--                  <include>org.commonjava.*:*</include>-->
-<!--                  <include>commons-lang:commons-lang</include>-->
-<!--                </includes>-->
-<!--              </artifactSet>-->
-<!--              <filters>-->
-<!--                <filter>-->
-<!--                  <artifact>*:*:</artifact>-->
-<!--                  <excludes>-->
-<!--                    <exclude>META-INF/*.RSA</exclude>-->
-<!--                    <exclude>META-INF/*.SF</exclude>-->
-<!--                  </excludes>-->
-<!--                </filter>-->
-<!--              </filters>-->
-<!--            </configuration>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <index>true</index>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -259,26 +295,26 @@
       <id>run-its</id>
       <build>
         <plugins>
-<!--          <plugin>-->
-<!--            <groupId>org.apache.maven.plugins</groupId>-->
-<!--            <artifactId>maven-dependency-plugin</artifactId>-->
-<!--            <version>3.1.1</version>-->
-<!--            <executions>-->
-<!--              <execution>-->
-<!--                <id>unpack-maven</id>-->
-<!--                <phase>pre-integration-test</phase>-->
-<!--                <goals>-->
-<!--                  <goal>unpack-dependencies</goal>-->
-<!--                </goals>-->
-<!--                <configuration>-->
-<!--                  <includeArtifactIds>apache-maven</includeArtifactIds>-->
-<!--                  <includeClassifiers>bin</includeClassifiers>-->
-<!--                  <includeTypes>zip</includeTypes>-->
-<!--                  <outputDirectory>${project.build.directory}</outputDirectory>-->
-<!--                </configuration>-->
-<!--              </execution>-->
-<!--            </executions>-->
-<!--          </plugin>-->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+              <execution>
+                <id>unpack-maven</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeArtifactIds>apache-maven</includeArtifactIds>
+                  <includeClassifiers>bin</includeClassifiers>
+                  <includeTypes>zip</includeTypes>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
@@ -293,7 +329,7 @@
                   <resources>
                     <resource>
                       <directory>${project.build.directory}</directory>
-                      <include>grab-dependency-populator-${project.version}.jar</include>
+                      <include>grab-dependency-populator-${project.version}-jar-with-dependencies.jar</include>
                       <filtering>false</filtering>
                     </resource>
                   </resources>
@@ -304,10 +340,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.2.1</version>
             <executions>
               <execution>
-                <id>integration-test-1</id>
+                <id>integration-test</id>
                 <goals>
                   <goal>run</goal>
                   <goal>verify</goal>
@@ -316,47 +352,18 @@
                   <debug>true</debug>
                   <showErrors>true</showErrors>
                   <addTestClassPath>true</addTestClassPath>
-                  <cloneProjectsTo>${project.build.directory}/it-1</cloneProjectsTo>
+                  <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                   <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
                   <mavenHome>${it.maven.home}</mavenHome>
                   <projectsDirectory>src/it</projectsDirectory>
                   <settingsFile>src/it/settings.xml</settingsFile>
-                   <showVersion>true</showVersion>
-                  <!-- <mavenExecutable>mvnDebug</mavenExecutable> -->
-                  <filterProperties>
-                    <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
-                 </filterProperties>
-                  <pomIncludes>
-                    <pomInclude>${itPomIncludes}/pom.xml</pomInclude>
-                  </pomIncludes>
-                  <pomExcludes>
-                    <pomExclude>activation-modern-profile/pom.xml</pomExclude>
-                  </pomExcludes>
-                  <postBuildHookScript>verify</postBuildHookScript>
-                </configuration>
-              </execution>
-              <execution>
-                <id>integration-test-2</id>
-                <goals>
-                  <goal>run</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <debug>true</debug>
-                  <showErrors>true</showErrors>
-                  <addTestClassPath>true</addTestClassPath>
-                  <cloneProjectsTo>${project.build.directory}/it-2</cloneProjectsTo>
-                  <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
-                  <mavenHome>${it.maven.home}</mavenHome>
-                  <projectsDirectory>src/it</projectsDirectory>
-                  <settingsFile>src/it/settings-profile.xml</settingsFile>
                   <showVersion>true</showVersion>
                   <!-- <mavenExecutable>mvnDebug</mavenExecutable> -->
                   <filterProperties>
                     <localRepositoryPath>${localRepositoryPath}</localRepositoryPath>
                   </filterProperties>
                   <pomIncludes>
-                    <pomInclude>activation-modern-profile/pom.xml</pomInclude>
+                    <pomInclude>${itPomIncludes}/pom.xml</pomInclude>
                   </pomIncludes>
                   <postBuildHookScript>verify</postBuildHookScript>
                 </configuration>
