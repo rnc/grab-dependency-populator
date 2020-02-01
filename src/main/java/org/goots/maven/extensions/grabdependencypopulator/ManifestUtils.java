@@ -17,34 +17,27 @@ package org.goots.maven.extensions.grabdependencypopulator;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Enumeration;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-class Utils
+class ManifestUtils
 {
-   /**
+    /**
      * Retrieves the SHA this was built with.
      *
      * @return the GIT sha of this codebase.
      */
     static String getManifestInformation() throws IOException
     {
-        String result = "";
+        String result;
 
-        final Enumeration<URL> resources = Utils.class.getClassLoader().getResources( "META-INF/MANIFEST.MF" );
+        final URL jarUrl = ManifestUtils.class.getProtectionDomain().getCodeSource().getLocation();
 
-        while ( resources.hasMoreElements() )
+        try (JarInputStream jarStream = new JarInputStream( jarUrl.openStream() ))
         {
-            final URL jarUrl = resources.nextElement();
-
-            if ( jarUrl.getFile().contains( "alt-deploy-" ) )
-            {
-                final Manifest manifest = new Manifest( jarUrl.openStream() );
-
-                result = manifest.getMainAttributes().getValue( "Implementation-Version" );
-                result += " ( SHA: " + manifest.getMainAttributes().getValue( "Scm-Revision" ) + " ) ";
-                break;
-            }
+            final Manifest manifest = jarStream.getManifest();
+            result = manifest.getMainAttributes().getValue( "Implementation-Version" );
+            result += " ( SHA: " + manifest.getMainAttributes().getValue( "Scm-Revision" ) + " ) ";
         }
 
         return result;

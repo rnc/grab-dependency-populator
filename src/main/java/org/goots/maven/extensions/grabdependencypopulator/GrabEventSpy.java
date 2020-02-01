@@ -68,7 +68,7 @@ public class GrabEventSpy
             {
                 try
                 {
-                    logger.info( "Activating GrabDependencyPopulator extension {}", Utils.getManifestInformation() );
+                    logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
                     MavenProject p = ee.getProject();
                     HashMap<ProjectRef, Dependency> dependencies = grabParser.searchGroovyFiles( p.getBasedir() );
                     if ( dependencies.size() > 0 )
