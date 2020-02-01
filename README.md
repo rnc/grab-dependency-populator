@@ -6,7 +6,7 @@
 ## Overview
 
 This extension will activate implicitly once configured. It will scan the source
-recursively and locate any `@Grab` annotations. These will be parsed and the
+recursively for `*.groovy` files and locate any `@Grab` annotations. These will be parsed and the
 resulting dependency added to the Maven project dependencies.
 
 ## Installation
@@ -38,6 +38,7 @@ There is no configuration required for this plugin. It can be disabled
 by setting `grab.extension.disable` to true.
 
 
-## Future:
+## Future
 
-* Handle GrabResolvers as well and add the repositories to the Maven project.
+* Handle GrabResolvers as well and add the repositories to the Maven project
+* Configurable error if multiple Grab's have differing versions (but same group:artifact)
