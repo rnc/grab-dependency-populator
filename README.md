@@ -1,13 +1,13 @@
 [![Build Status (Travis CI)](https://travis-ci.org/rnc/grab-dependency-populator.svg?branch=master)](https://travis-ci.org/rnc/grab-dependency-populator.svg?branch=master)
 
 
-# Maven extension to add dependencies specified in Grape `@Grab` annotations.
+# Maven extension to add dependencies and repositories specified in Grape `@Grab`/`@GrabResolver` annotations.
 
 ## Overview
 
 This extension will activate implicitly once configured. It will scan the source
-recursively for `*.groovy` files and locate any `@Grab` annotations. These will be parsed and the
-resulting dependency added to the Maven project dependencies.
+recursively for `*.groovy` files and locate any `@Grab` annotations (i.e. `@Grab` and `@GrabResolver`). These will be parsed and the
+resulting dependencies and repositories added to the Maven project dependencies.
 
 ## Installation
 
@@ -40,5 +40,4 @@ by setting `grab.extension.disable` to true.
 
 ## Future
 
-* Handle GrabResolvers as well and add the repositories to the Maven project
 * Configurable error if multiple Grab's have differing versions (but same group:artifact)

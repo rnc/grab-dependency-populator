@@ -15,8 +15,10 @@
  */
 package org.goots.maven.extensions.grabdependencypopulator;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
 import org.slf4j.Logger;
@@ -27,6 +29,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,34 +40,47 @@ public class GrabParser
 
     private static final Pattern GRAB_PATTERN_MULTIPLE = Pattern.compile( "@Grab.*group=[\"'](.+)[\"'].*module=[\"'](.+)[\"'].*version=[\"'](.+)[\"'].*" );
 
+    private static final Pattern GRAB_RESOLVER_PATTERN_MULTIPLE = Pattern.compile( "@GrabResolver.*name=[\"'](.+)[\"'].*root=[\"'](.+)[\"'].*" );
+
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    @SneakyThrows
-    private HashMap<ProjectRef, Dependency> searchFile ( Path target)
-    {
-        HashMap<ProjectRef, Dependency> result = new HashMap<>(  );
+    @Getter
+    private final HashMap<ProjectRef, Dependency> dependencies = new HashMap<>(  );
 
+    @Getter
+    private final Set<Repository> repositories = new HashSet<>( );
+
+    @SneakyThrows
+    private void searchFile ( Path target)
+    {
         Files.readAllLines( target ).stream().filter( s -> s.contains( "@Grab" ) ).forEach( s -> {
             // Strip all whitespace as it makes the matching simpler.
             s = s.replaceAll( "\\s+", "" );
             Matcher gs = GRAB_PATTERN_SINGLE.matcher( s );
             Matcher gm = GRAB_PATTERN_MULTIPLE.matcher( s );
+            Matcher gr = GRAB_RESOLVER_PATTERN_MULTIPLE.matcher( s );
             if ( gs.matches() )
             {
-                Dependency d = processDependency( result, gs.group( 1 ), gs.group( 2 ), gs.group( 3 ) );
+                Dependency d = processDependency( dependencies, gs.group( 1 ), gs.group( 2 ), gs.group( 3 ) );
                 logger.debug( "Matched {} and got version {}", s, d );
             }
             else if ( gm.matches() )
             {
-                Dependency d = processDependency( result, gm.group( 1 ), gm.group( 2 ), gm.group( 3 ) );
+                Dependency d = processDependency( dependencies, gm.group( 1 ), gm.group( 2 ), gm.group( 3 ) );
                 logger.debug( "Matched {} and got version {}", s, d );
+            }
+            else if ( gr.matches() )
+            {
+                Repository r = new Repository();
+                r.setId( gr.group( 1 ) );
+                r.setUrl( gr.group( 2 ) );
+                repositories.add( r );
             }
             else
             {
                 logger.debug( "No match for {}", s );
             }
         } );
-        return result;
     }
 
     private Dependency processDependency( HashMap<ProjectRef, Dependency> result,
@@ -75,21 +92,21 @@ public class GrabParser
         d.setVersion( version );
         ProjectRef pr = new SimpleProjectRef(group, artifact);
 
-        if ( result.containsKey( pr ) )
+        Dependency existing = result.get( pr );
+        if ( existing != null && ! version.equals( existing.getVersion() ) )
         {
             logger.warn ("Multiple dependencies with different versions detected: {} versus {}",
                          d, result.get( pr ));
         }
+
         result.put( pr, d );
         return d;
     }
 
-    public HashMap<ProjectRef, Dependency> searchGroovyFiles( File root) throws IOException {
-        HashMap<ProjectRef, Dependency> results = new HashMap<>(  );
+    public void searchGroovyFiles( File root) throws IOException {
         Files.walk(root.toPath()).
                 filter(Files::isRegularFile).
                 filter(f -> f.toString().endsWith(".groovy")).
-                forEach(f -> results.putAll(searchFile(f)));
-        return results;
+                forEach( this::searchFile );
     }
 }

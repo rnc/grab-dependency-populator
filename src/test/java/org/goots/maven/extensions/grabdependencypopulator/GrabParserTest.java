@@ -18,6 +18,7 @@ package org.goots.maven.extensions.grabdependencypopulator;
 import org.apache.maven.model.Dependency;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
@@ -34,22 +35,38 @@ public class GrabParserTest
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog().muteForSuccessfulTests();
 
-    @Test
-    public void testParse() throws Exception
+    private File target;
+
+    @Before
+    public void setup() throws Exception
     {
         final URL resource = Thread.currentThread().getContextClassLoader().getResource( "" );
         if ( resource == null )
         {
             throw new Exception( "Null resource" );
         }
+        target = new File( resource.getPath() ).getParentFile();
+    }
 
-        final File target = new File( resource.getPath() ).getParentFile();
-
+    @Test
+    public void testParseGrab() throws Exception
+    {
         GrabParser p = new GrabParser();
-        HashMap<ProjectRef, Dependency> dependencies = p.searchGroovyFiles( target );
+        p.searchGroovyFiles( target );
+        HashMap<ProjectRef, Dependency> dependencies = p.getDependencies();
 
         assertEquals( 2, dependencies.size() );
         assertTrue( dependencies.containsKey( SimpleProjectRef.parse( "org.yaml:snakeyaml" ) ) );
-        System.out.println( "Deps : " + dependencies );
+    }
+
+    @Test
+    public void testParseGrabResolver() throws Exception
+    {
+        GrabParser p = new GrabParser();
+        p.searchGroovyFiles( target );
+
+        assertEquals( 1, p.getRepositories().size() );
+        //noinspection OptionalGetWithoutIsPresent
+        assertTrue( p.getRepositories().stream().findFirst().get().getUrl().contains( "https://jitpack.io/" ) );
     }
 }
