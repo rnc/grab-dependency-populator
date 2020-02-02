@@ -17,9 +17,7 @@ package org.goots.maven.extensions.grabdependencypopulator;
 
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.HashMap;
 
 import static org.apache.maven.execution.ExecutionEvent.Type.SessionStarted;
 
@@ -70,11 +67,17 @@ public class GrabEventSpy
                 {
                     logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
                     MavenProject p = ee.getProject();
-                    HashMap<ProjectRef, Dependency> dependencies = grabParser.searchGroovyFiles( p.getBasedir() );
-                    if ( dependencies.size() > 0 )
+                    grabParser.searchGroovyFiles( p.getBasedir() );
+
+                    if ( grabParser.getDependencies().size() > 0 )
                     {
-                        logger.info( "Adding to project the dependencies {} ", dependencies.values() );
-                        p.getDependencies().addAll( dependencies.values() );
+                        logger.info( "Adding to project the dependencies {} ", grabParser.getDependencies().values() );
+                        p.getModel().getDependencies().addAll( grabParser.getDependencies().values() );
+                    }
+                    if ( grabParser.getRepositories().size() > 0 )
+                    {
+                        logger.info( "Adding to project the dependencies {} ", grabParser.getRepositories() );
+                        p.getModel().getRepositories().addAll( grabParser.getRepositories() );
                     }
                 }
                 catch ( IOException e )
