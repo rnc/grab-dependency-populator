@@ -18,6 +18,9 @@ package org.goots.maven.extensions.grabdependencypopulator;
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.project.MavenProject;
+import org.commonjava.maven.ext.common.ManipulationException;
+import org.commonjava.maven.ext.common.ManipulationUncheckedException;
+import org.commonjava.maven.ext.common.util.ManifestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +68,12 @@ public class GrabEventSpy
             {
                 try
                 {
-                    logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
+                    logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation(GrabEventSpy.class) );
                     MavenProject p = ee.getProject();
+                    grabParser.setErrorOnMismatch( Boolean.parseBoolean( ee.getSession()
+                                                                           .getSystemProperties()
+                                                                           .getProperty( "grabPopulatorErrorOnMismatch",
+                                                                                         "false" ) ) );
                     grabParser.searchGroovyFiles( p.getBasedir() );
 
                     if ( grabParser.getDependencies().size() > 0 )
@@ -80,7 +87,11 @@ public class GrabEventSpy
                         p.getModel().getRepositories().addAll( grabParser.getRepositories() );
                     }
                 }
-                catch ( IOException e )
+                catch ( ManipulationUncheckedException e )
+                {
+                    ee.getSession().getResult().addException( e.getCause() );
+                }
+                catch ( IOException | ManipulationException e )
                 {
                     ee.getSession().getResult().addException( e );
                 }

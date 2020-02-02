@@ -16,11 +16,13 @@
 package org.goots.maven.extensions.grabdependencypopulator;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
+import org.commonjava.maven.ext.common.ManipulationUncheckedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,12 @@ public class GrabParser
     private static final Pattern GRAB_RESOLVER_PATTERN_MULTIPLE = Pattern.compile( "@GrabResolver.*name=[\"'](.+)[\"'].*root=[\"'](.+)[\"'].*" );
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    /**
+     * Determines whether to throw an error or print a warning if multiple dependencies have mismatched versions.
+     */
+    @Setter
+    private boolean errorOnMismatch;
 
     @Getter
     private final HashMap<ProjectRef, Dependency> dependencies = new HashMap<>(  );
@@ -95,8 +103,19 @@ public class GrabParser
         Dependency existing = result.get( pr );
         if ( existing != null && ! version.equals( existing.getVersion() ) )
         {
-            logger.warn ("Multiple dependencies with different versions detected: {} versus {}",
-                         d, result.get( pr ));
+            if ( errorOnMismatch )
+            {
+                logger.error( "Multiple dependencies with different versions detected: {} versus {}", d,
+                             result.get( pr ) );
+                throw new ManipulationUncheckedException(
+                                "GrabDependencyPopulator failed due to a version clash ({} versus {})", d,
+                                result.get( pr ) );
+            }
+            else
+            {
+                logger.warn( "Multiple dependencies with different versions detected: {} versus {}", d,
+                             result.get( pr ) );
+            }
         }
 
         result.put( pr, d );

@@ -18,6 +18,7 @@ package org.goots.maven.extensions.grabdependencypopulator;
 import org.apache.maven.model.Dependency;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
+import org.commonjava.maven.ext.common.ManipulationUncheckedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,5 +69,13 @@ public class GrabParserTest
         assertEquals( 1, p.getRepositories().size() );
         //noinspection OptionalGetWithoutIsPresent
         assertTrue( p.getRepositories().stream().findFirst().get().getUrl().contains( "https://jitpack.io/" ) );
+    }
+
+    @Test(expected = ManipulationUncheckedException.class )
+    public void testParseGrabErrorOnClash() throws Exception
+    {
+        GrabParser p = new GrabParser();
+        p.setErrorOnMismatch( true );
+        p.searchGroovyFiles( target );
     }
 }
