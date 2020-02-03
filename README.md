@@ -34,10 +34,6 @@ It may also be installed in `<maven-installation>/lib/ext` using the `jar-with-d
 
 ## Configuration
 
-There is no configuration required for this plugin. It can be disabled
-by setting `grab.extension.disable` to true.
-
-
-## Future
-
-* Configurable error if multiple Grab's have differing versions (but same group:artifact)
+It can be disabled by setting `grab.extension.disable` to true.
+By setting `grabPopulatorErrorOnMismatch` to true it will throw an exception instead of printing a warning when  
+it finds multiple `@Grab` with the same groupId / artifactId but differing versions.

@@ -66,6 +66,9 @@
     <it.maven.home>${project.build.directory}/apache-maven-${mavenVersion}</it.maven.home>
     <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
     <itPomIncludes>*</itPomIncludes>
+
+    <!-- To be removed once PME is released -->
+    <enforceBestPractices>false</enforceBestPractices>
   </properties>
 
   <dependencyManagement>
@@ -115,6 +118,19 @@
           <exclusion>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.maven.ext</groupId>
+        <artifactId>pom-manipulation-common</artifactId>
+        <version>3.9-SNAPSHOT</version>
+        <!-- As we only want the immediate dependency and some of the transitives cause -->
+        <!-- clashes then exclude everything for simplicity -->
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -170,6 +186,10 @@
     <dependency>
       <groupId>org.commonjava.maven.atlas</groupId>
       <artifactId>atlas-identities</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.maven.ext</groupId>
+      <artifactId>pom-manipulation-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -378,5 +398,18 @@
       </build>
     </profile>
   </profiles>
+
+  <repositories>
+    <repository>
+      <id>oss.sonatype.org-snapshot</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>
