@@ -66,6 +66,9 @@
     <it.maven.home>${project.build.directory}/apache-maven-${mavenVersion}</it.maven.home>
     <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
     <itPomIncludes>*</itPomIncludes>
+
+    <!-- To be removed once PME is released -->
+    <enforceBestPractices>false</enforceBestPractices>
   </properties>
 
   <dependencyManagement>
@@ -395,5 +398,18 @@
       </build>
     </profile>
   </profiles>
+
+  <repositories>
+    <repository>
+      <id>oss.sonatype.org-snapshot</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>
