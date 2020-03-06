@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.redhat.rcm</groupId>
     <artifactId>redhat-releng-tools</artifactId>
-    <version>7</version>
+    <version>9</version>
   </parent>
 
   <groupId>org.goots.maven.extensions</groupId>
@@ -255,9 +255,6 @@
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <configuration>
-            <header>APACHE-2-SIMPLIFIED-COPYRIGHT.txt</header>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
