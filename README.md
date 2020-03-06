@@ -34,6 +34,5 @@ It may also be installed in `<maven-installation>/lib/ext` using the `jar-with-d
 
 ## Configuration
 
-It can be disabled by setting `grab.extension.disable` to true.
-By setting `grabPopulatorErrorOnMismatch` to true it will throw an exception instead of printing a warning when  
-it finds multiple `@Grab` with the same groupId / artifactId but differing versions.
+* It can be disabled by setting `grab.extension.disable` to true.
+* By setting `grabPopulatorErrorOnMismatch` to true it will throw an exception instead of printing a warning when it finds multiple `@Grab` with the same groupId / artifactId but differing versions.

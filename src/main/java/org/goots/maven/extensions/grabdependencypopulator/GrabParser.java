@@ -61,6 +61,7 @@ public class GrabParser
     @SneakyThrows
     private void searchFile ( Path target)
     {
+        logger.debug( "Processing {}", target );
         Files.readAllLines( target ).stream().filter( s -> s.contains( "@Grab" ) ).forEach( s -> {
             // Strip all whitespace as it makes the matching simpler.
             s = s.replaceAll( "\\s+", "" );
