@@ -124,7 +124,7 @@
       <dependency>
         <groupId>org.commonjava.maven.ext</groupId>
         <artifactId>pom-manipulation-common</artifactId>
-        <version>3.9-SNAPSHOT</version>
+        <version>3.8.1</version>
         <!-- As we only want the immediate dependency and some of the transitives cause -->
         <!-- clashes then exclude everything for simplicity -->
         <exclusions>
@@ -395,18 +395,4 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>oss.sonatype.org-snapshot</id>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
 </project>

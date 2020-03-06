@@ -68,7 +68,7 @@ public class GrabEventSpy
             {
                 try
                 {
-                    logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation(GrabEventSpy.class) );
+                    logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
                     MavenProject p = ee.getProject();
                     grabParser.setErrorOnMismatch( Boolean.parseBoolean( ee.getSession()
                                                                            .getSystemProperties()

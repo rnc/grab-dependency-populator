@@ -109,8 +109,7 @@ public class GrabParser
                 logger.error( "Multiple dependencies with different versions detected: {} versus {}", d,
                              result.get( pr ) );
                 throw new ManipulationUncheckedException(
-                                "GrabDependencyPopulator failed due to a version clash ({} versus {})", d,
-                                result.get( pr ) );
+                    "GrabDependencyPopulator failed due to a version clash (" + d + " versus " + result.get( pr ) + ")");
             }
             else
             {
