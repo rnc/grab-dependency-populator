@@ -27,4 +27,4 @@ jobs:
 
   - name: pr
     if: type = pull_request
-    script: "travis-wait-enhanced --timeout=60m --interval=4m -- mvn -V clean org.apache.maven.plugins:maven-source-plugin:jar-no-fork install -Prun-its"
+    script: "travis-wait-enhanced --timeout=60m --interval=4m -- mvn -U -V clean org.apache.maven.plugins:maven-source-plugin:jar-no-fork install -Prun-its"
