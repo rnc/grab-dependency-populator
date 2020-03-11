@@ -62,7 +62,7 @@ public class Configuration
                         System.getenv( DISABLE_GRAB_EXTENSION ) );
 
         errorOnMismatch = Boolean.parseBoolean( unified.getProperty( ERROR_ON_MISMATCH, "true" ) );
-        atEnd = Boolean.parseBoolean( unified.getProperty( ADD_AT_END ) );
+        atEnd = Boolean.parseBoolean( unified.getProperty( ADD_AT_END, "true" ) );
         verifyDependencies = Boolean.parseBoolean( unified.getProperty( VERIFY_DEPS, "true" ) );
     }
 }

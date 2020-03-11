@@ -37,6 +37,6 @@ It may also be installed in `<maven-installation>/lib/ext` using the `jar-with-d
 | Config Property | Default | Description |
 |-----------------|---------|-------------|
 | `grabPopulatorDisable` | false        | Disables the extension |
-| `grabPopulatorAddAtEnd` | add at start        | Add the 'grabbed' dependencies at the end of the list|
+| `grabPopulatorAddAtEnd` | true        | Add the 'grabbed' dependencies at the end of the list|
 | `grabPopulatorErrorOnMismatch` | true        | Throws an error if multiple `@Grab` have the same groupId / artifactId but differing versions |
 | `grabPopulatorVerifyDependencies` | true        | Checks that all no grabbed dependency has a different version to native dependencies |
