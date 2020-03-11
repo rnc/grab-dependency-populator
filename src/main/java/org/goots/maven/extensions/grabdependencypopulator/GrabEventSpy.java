@@ -30,6 +30,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.maven.execution.ExecutionEvent.Type.SessionStarted;
 
@@ -90,15 +91,26 @@ public class GrabEventSpy
                             verifyDeps( true, grabParser.getDependencies().values(), p.getModel().getDependencies() );
                         }
 
-                        logger.info( "Adding to project the dependencies {} ", grabParser.getDependencies().values() );
+                        if ( logger.isInfoEnabled() )
+                        {
+                            String repoList = grabParser.getDependencies()
+                                                        .values()
+                                                        .stream()
+                                                        .map( v -> "\t" + v )
+                                                        .collect( Collectors.joining( System.lineSeparator() ) );
+                            logger.info( "Adding to project the dependencies{}{}", System.lineSeparator(), repoList );
+                        }
                         p.getModel().getDependencies().addAll(
                                         config.isAtEnd() ? p.getModel().getDependencies().size() : 0,
                                         grabParser.getDependencies().values() );
                     }
                     if ( grabParser.getRepositories().size() > 0 )
                     {
-                        logger.info( "Adding to project the dependencies {} ", grabParser.getRepositories() );
-                        p.getModel().getRepositories().addAll( grabParser.getRepositories() );
+                        String repoList = grabParser.getRepositories()
+                                                    .stream()
+                                                    .map( r -> "\t" + r )
+                                                    .collect( Collectors.joining( System.lineSeparator() ) );
+                        logger.info( "Adding to project the repositories{}{}", System.lineSeparator(), repoList );
                     }
                 }
                 catch ( ManipulationUncheckedException e )
