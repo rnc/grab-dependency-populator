@@ -17,10 +17,10 @@ package org.goots.maven.extensions.grabdependencypopulator;
 
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.commonjava.maven.ext.common.ManipulationException;
 import org.commonjava.maven.ext.common.ManipulationUncheckedException;
-import org.commonjava.maven.ext.common.util.ManifestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 import static org.apache.maven.execution.ExecutionEvent.Type.SessionStarted;
 
@@ -39,22 +41,24 @@ public class GrabEventSpy
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    @SuppressWarnings( "FieldCanBeLocal" )
-    private final String DISABLE_GRAB_EXTENSION = "grab.extension.disable";
+    private final Configuration config;
 
     private final GrabParser grabParser;
 
     @SuppressWarnings( "unused" )
     @Inject
-    public GrabEventSpy( GrabParser lp)
+    public GrabEventSpy( GrabParser lp, Configuration c)
     {
         this.grabParser = lp;
+        this.config = c;
+
+        config.init( System.getProperties() );
     }
 
     @Override
     public void onEvent( Object event )
     {
-        if ( isEventSpyDisabled() )
+        if ( config.isDisabled() )
         {
             return;
         }
@@ -66,20 +70,30 @@ public class GrabEventSpy
 
             if ( type == SessionStarted)
             {
+                config.init (ee.getSession().getSystemProperties(), ee.getSession().getUserProperties());
                 try
                 {
                     logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
                     MavenProject p = ee.getProject();
-                    grabParser.setErrorOnMismatch( Boolean.parseBoolean( ee.getSession()
-                                                                           .getSystemProperties()
-                                                                           .getProperty( "grabPopulatorErrorOnMismatch",
-                                                                                         "false" ) ) );
+
+                    grabParser.setErrorOnMismatch( config.isErrorOnMismatch() );
                     grabParser.searchGroovyFiles( p.getBasedir() );
 
                     if ( grabParser.getDependencies().size() > 0 )
                     {
+                        if ( config.isVerifyDependencies() )
+                        {
+                            if ( p.getModel().getDependencyManagement() != null )
+                            {
+                                verifyDeps( false, grabParser.getDependencies().values(), p.getModel().getDependencyManagement().getDependencies() );
+                            }
+                            verifyDeps( true, grabParser.getDependencies().values(), p.getModel().getDependencies() );
+                        }
+
                         logger.info( "Adding to project the dependencies {} ", grabParser.getDependencies().values() );
-                        p.getModel().getDependencies().addAll( grabParser.getDependencies().values() );
+                        p.getModel().getDependencies().addAll(
+                                        config.isAtEnd() ? p.getModel().getDependencies().size() : 0,
+                                        grabParser.getDependencies().values() );
                     }
                     if ( grabParser.getRepositories().size() > 0 )
                     {
@@ -91,18 +105,31 @@ public class GrabEventSpy
                 {
                     ee.getSession().getResult().addException( e.getCause() );
                 }
-                catch ( IOException | ManipulationException e )
+                catch ( IOException e )
                 {
-                    ee.getSession().getResult().addException( e );
+                    ee.getSession().getResult().addException( new ManipulationException( "Error searching groovy files" , e ) );
                 }
             }
         }
     }
 
-
-    private boolean isEventSpyDisabled()
+    private void verifyDeps( boolean warnOnMatch, Collection<Dependency> grabbedDeps, List<Dependency> targetDeps )
     {
-        return "true".equalsIgnoreCase( System.getProperty( DISABLE_GRAB_EXTENSION ) ) || "true".equalsIgnoreCase(
-                        System.getenv( DISABLE_GRAB_EXTENSION ) );
+        grabbedDeps.forEach( d -> targetDeps.forEach( t -> {
+            if ( t.getGroupId().equals( d.getGroupId() ) &&
+                            t.getArtifactId().equals( d.getArtifactId() ) )
+            {
+                if ( !d.getVersion().equals( t.getVersion() ) )
+                {
+                    logger.error( "Mismatched version between Grab ({}) and native dependency ({})", d, t );
+                    throw new ManipulationUncheckedException( new ManipulationException(
+                                                              "Mismatched version between Grab and native dependencies." + d + " and " + t ) );
+                }
+                else if ( warnOnMatch )
+                {
+                    logger.warn( "Duplicate dependency definition between Grab ({}) and native dependency ({})", d, t );
+                }
+            }
+        } ) );
     }
 }

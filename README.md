@@ -25,7 +25,7 @@ A typical extension file is:
   &lt;extension&gt;
     &lt;groupId&gt;org.goots.maven.extensions&lt;/groupId&gt;
     &lt;artifactId&gt;grab-dependency-populator&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
   &lt;/extension&gt;
 &lt;/extensions&gt;
 </code></pre>
@@ -34,5 +34,9 @@ It may also be installed in `<maven-installation>/lib/ext` using the `jar-with-d
 
 ## Configuration
 
-* It can be disabled by setting `grab.extension.disable` to true.
-* By setting `grabPopulatorErrorOnMismatch` to true it will throw an exception instead of printing a warning when it finds multiple `@Grab` with the same groupId / artifactId but differing versions.
+| Config Property | Default | Description |
+|-----------------|---------|-------------|
+| `grabPopulatorDisable` | false        | Disables the extension |
+| `grabPopulatorAddAtEnd` | add at start        | Add the 'grabbed' dependencies at the end of the list|
+| `grabPopulatorErrorOnMismatch` | true        | Throws an error if multiple `@Grab` have the same groupId / artifactId but differing versions |
+| `grabPopulatorVerifyDependencies` | true        | Checks that all no grabbed dependency has a different version to native dependencies |
