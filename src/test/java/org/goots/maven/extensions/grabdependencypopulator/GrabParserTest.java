@@ -56,7 +56,7 @@ public class GrabParserTest
         p.searchGroovyFiles( target );
         HashMap<ProjectRef, Dependency> dependencies = p.getDependencies();
 
-        assertEquals( 2, dependencies.size() );
+        assertEquals( 4, dependencies.size() );
         assertTrue( dependencies.containsKey( SimpleProjectRef.parse( "org.yaml:snakeyaml" ) ) );
         assertTrue( systemOutRule.getLog().contains(
                         "Multiple dependencies with different versions detected: Dependency "
@@ -70,9 +70,8 @@ public class GrabParserTest
         GrabParser p = new GrabParser();
         p.searchGroovyFiles( target );
 
-        assertEquals( 1, p.getRepositories().size() );
-        //noinspection OptionalGetWithoutIsPresent
-        assertTrue( p.getRepositories().stream().findFirst().get().getUrl().contains( "https://jitpack.io/" ) );
+        assertEquals( 2, p.getRepositories().size() );
+        assertTrue( p.getRepositories().stream().anyMatch( r -> r.getUrl().contains( "https://jitpack.io/" ) ) );
     }
 
     @Test(expected = ManipulationUncheckedException.class )
