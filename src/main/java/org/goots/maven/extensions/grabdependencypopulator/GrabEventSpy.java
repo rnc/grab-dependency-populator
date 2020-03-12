@@ -18,6 +18,7 @@ package org.goots.maven.extensions.grabdependencypopulator;
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.commonjava.maven.ext.common.ManipulationException;
 import org.commonjava.maven.ext.common.ManipulationUncheckedException;
@@ -29,6 +30,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,6 +98,7 @@ public class GrabEventSpy
                             String repoList = grabParser.getDependencies()
                                                         .values()
                                                         .stream()
+                                                        .sorted( Comparator.comparing( Dependency::getGroupId ))
                                                         .map( v -> "\t" + v )
                                                         .collect( Collectors.joining( System.lineSeparator() ) );
                             logger.info( "Adding to project the dependencies{}{}", System.lineSeparator(), repoList );
@@ -108,7 +111,8 @@ public class GrabEventSpy
                     {
                         String repoList = grabParser.getRepositories()
                                                     .stream()
-                                                    .map( r -> "\t" + r )
+                                                    .sorted( Comparator.comparing( Repository::getId ))
+                                                    .map( r -> "\t" + r.getId() + " -> " + r.getUrl() )
                                                     .collect( Collectors.joining( System.lineSeparator() ) );
                         logger.info( "Adding to project the repositories{}{}", System.lineSeparator(), repoList );
                     }
