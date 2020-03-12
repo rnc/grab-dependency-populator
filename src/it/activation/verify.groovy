@@ -21,3 +21,7 @@ File buildLog = new File( basedir, 'build.log' )
 assert buildLog.getText().contains( "Activating GrabDependencyPopulator extension" )
 assert buildLog.getText().contains( "Adding to project the dependencies" )
 assert buildLog.getText().contains( "Adding to project the repositories" )
+
+assert buildLog.getText().contains( """[INFO] Adding to project the dependencies
+	Dependency {groupId=com.github.everit-org.json-schema, artifactId=org.everit.json.schema, version=1.11.0, type=jar}
+	Dependency {groupId=org.yaml, artifactId=snakeyaml, version=1.21, type=jar}""");
