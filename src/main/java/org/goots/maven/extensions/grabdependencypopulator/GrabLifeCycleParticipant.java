@@ -43,7 +43,9 @@ public class GrabLifeCycleParticipant
             session.getResult().getExceptions().forEach( e -> {
                 if ( e instanceof ManipulationException )
                 {
-                    logger.error( "Exception during GrabDependencyPopulator processing", e);
+                    logger.error( "Exception from extension: {}", e.getMessage());
+                    // Underlying code uses CopyOnWriteArray so safe to remove.
+                    session.getResult().getExceptions().remove( e );
                 }
             } );
         }

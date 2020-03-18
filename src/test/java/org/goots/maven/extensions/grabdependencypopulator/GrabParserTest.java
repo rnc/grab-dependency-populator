@@ -18,6 +18,7 @@ package org.goots.maven.extensions.grabdependencypopulator;
 import org.apache.maven.model.Dependency;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
+import org.commonjava.maven.ext.common.ManipulationException;
 import org.commonjava.maven.ext.common.ManipulationUncheckedException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class GrabParserTest
 {
@@ -62,6 +64,26 @@ public class GrabParserTest
                         "Multiple dependencies with different versions detected: Dependency "
                                         + "{groupId=org.yaml, artifactId=snakeyaml, version=1.01, type=jar} versus "
                                         + "Dependency {groupId=org.yaml, artifactId=snakeyaml, version=1.21, type=jar}" ) );
+    }
+
+    @Test
+    public void testParseGrabException() throws Exception
+    {
+        GrabParser p = new GrabParser();
+        p.setErrorOnMismatch( true );
+        try
+        {
+            p.searchGroovyFiles( target );
+            fail("No exception thrown");
+        }
+        catch ( ManipulationUncheckedException e )
+        {
+            if ( !( e.getCause() instanceof ManipulationException ) )
+            {
+                fail( "Unknown cause " + e.getCause() );
+            }
+            // Else pass
+        }
     }
 
     @Test
