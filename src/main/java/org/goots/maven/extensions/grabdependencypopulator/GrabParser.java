@@ -22,6 +22,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.commonjava.maven.atlas.ident.ref.ProjectRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectRef;
+import org.commonjava.maven.ext.common.ManipulationException;
 import org.commonjava.maven.ext.common.ManipulationUncheckedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,8 +109,8 @@ public class GrabParser
             {
                 logger.error( "Multiple dependencies with different versions detected: {} versus {}", d,
                              result.get( pr ) );
-                throw new ManipulationUncheckedException(
-                    "GrabDependencyPopulator failed due to a version clash (" + d + " versus " + result.get( pr ) + ")");
+                throw new ManipulationUncheckedException( new ManipulationException(
+                    "GrabDependencyPopulator failed due to a version clash (" + d + " versus " + result.get( pr ) + ")") );
             }
             else
             {
