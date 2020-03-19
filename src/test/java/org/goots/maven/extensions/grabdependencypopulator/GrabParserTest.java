@@ -26,7 +26,9 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -51,11 +53,28 @@ public class GrabParserTest
         target = new File( resource.getPath() ).getParentFile();
     }
 
+    @Test(expected = IOException.class )
+    public void testParseGrabWithFakeDirectory() throws Exception
+    {
+        GrabParser p = new GrabParser();
+        p.searchGroovyFiles( target, Collections.singletonList( "dummyDirectory" ) );
+    }
+
+    @Test
+    public void testParseGrabWithDirectory() throws Exception
+    {
+        GrabParser p = new GrabParser();
+        p.searchGroovyFiles( target, Collections.singletonList( "classes" ) );
+        HashMap<ProjectRef, Dependency> dependencies = p.getDependencies();
+
+        assertEquals( 0, dependencies.size() );
+    }
+
     @Test
     public void testParseGrab() throws Exception
     {
         GrabParser p = new GrabParser();
-        p.searchGroovyFiles( target );
+        p.searchGroovyFiles( target, Collections.emptyList() );
         HashMap<ProjectRef, Dependency> dependencies = p.getDependencies();
 
         assertEquals( 4, dependencies.size() );
@@ -73,7 +92,7 @@ public class GrabParserTest
         p.setErrorOnMismatch( true );
         try
         {
-            p.searchGroovyFiles( target );
+            p.searchGroovyFiles( target, Collections.emptyList() );
             fail("No exception thrown");
         }
         catch ( ManipulationUncheckedException e )
@@ -90,7 +109,7 @@ public class GrabParserTest
     public void testParseGrabResolver() throws Exception
     {
         GrabParser p = new GrabParser();
-        p.searchGroovyFiles( target );
+        p.searchGroovyFiles( target, Collections.emptyList() );
 
         assertEquals( 2, p.getRepositories().size() );
         assertTrue( p.getRepositories().stream().anyMatch( r -> r.getUrl().contains( "https://jitpack.io/" ) ) );
@@ -101,6 +120,6 @@ public class GrabParserTest
     {
         GrabParser p = new GrabParser();
         p.setErrorOnMismatch( true );
-        p.searchGroovyFiles( target );
+        p.searchGroovyFiles( target, Collections.emptyList() );
     }
 }

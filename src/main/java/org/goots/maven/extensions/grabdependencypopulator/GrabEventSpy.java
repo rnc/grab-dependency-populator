@@ -15,6 +15,8 @@
  */
 package org.goots.maven.extensions.grabdependencypopulator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.model.Dependency;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
@@ -42,26 +45,27 @@ import static org.apache.maven.execution.ExecutionEvent.Type.SessionStarted;
 public class GrabEventSpy
                 extends AbstractEventSpy
 {
+    @SuppressWarnings( "FieldCanBeLocal" )
+    private static final String DISABLE_GRAB_EXTENSION = "grabPopulatorDisable";
+
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private final Configuration config;
+    private final ObjectMapper mapper = new XmlMapper();
 
     private final GrabParser grabParser;
 
     @SuppressWarnings( "unused" )
     @Inject
-    public GrabEventSpy( GrabParser lp, Configuration c)
+    public GrabEventSpy( GrabParser lp)
     {
         this.grabParser = lp;
-        this.config = c;
-
-        config.init( System.getProperties() );
     }
 
     @Override
     public void onEvent( Object event )
     {
-        if ( config.isDisabled() )
+        if ( "true".equalsIgnoreCase( System.getProperty( DISABLE_GRAB_EXTENSION ) ) || "true".equalsIgnoreCase(
+                        System.getenv( DISABLE_GRAB_EXTENSION ) ) )
         {
             return;
         }
@@ -70,17 +74,30 @@ public class GrabEventSpy
         {
             final ExecutionEvent ee = (ExecutionEvent) event;
             final ExecutionEvent.Type type = ee.getType();
+            final Configuration config;
 
             if ( type == SessionStarted)
             {
-                config.init (ee.getSession().getSystemProperties(), ee.getSession().getUserProperties());
                 try
                 {
+                    File configurationFle = new File ( ee.getSession().getRequest().getBaseDirectory(), ".mvn" + File.separator + "grabDependencyPopulator.xml");
+                    logger.debug ("Checking for {} ", configurationFle);
+                    if ( configurationFle.exists() )
+                    {
+                        config = mapper.readValue(configurationFle , Configuration.class );
+                    }
+                    else
+                    {
+                        config = new Configuration();
+                    }
+                    config.updateConfiguration (ee.getSession().getSystemProperties(), ee.getSession().getUserProperties());
+
                     logger.info( "Activating GrabDependencyPopulator extension {}", ManifestUtils.getManifestInformation() );
+
                     MavenProject p = ee.getProject();
 
                     grabParser.setErrorOnMismatch( config.isErrorOnMismatch() );
-                    grabParser.searchGroovyFiles( p.getBasedir() );
+                    grabParser.searchGroovyFiles( p.getBasedir(), config.getDirectories() );
 
                     if ( grabParser.getDependencies().size() > 0 )
                     {
@@ -123,6 +140,7 @@ public class GrabEventSpy
                 }
                 catch ( IOException e )
                 {
+                    logger.error( "Caught ", e );
                     ee.getSession().getResult().addException( new ManipulationException( "Error searching groovy files" , e ) );
                 }
             }

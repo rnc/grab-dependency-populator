@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<configuration>
+  <errorOnMismatch>true</errorOnMismatch>
+  <verifyDependencies>false</verifyDependencies>
+  <atEnd>false</atEnd>
+
+  <!-- Either _all_ from root (excluding target) OR use include -->
+  <include>
+    <directory>src</directory>
+    <directory>vars</directory>
+  </include>
+
+</configuration>
