@@ -15,54 +15,76 @@
  */
 package org.goots.maven.extensions.grabdependencypopulator;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 
+/*
+
+ <?xml version="1.0" encoding="utf-8"?>
+ <configuration>
+    <errorOnMismatch>true|false</errorOnMismatch>
+    <verifyDependencies>true|false</verifyDependencies>
+    <atEnd>true|false</atEnd>
+
+    <!-- Either _all_ from root (excluding target) OR use include -->
+    <include>
+        <directory>one</directory>
+        <directory>two</directory>
+    </include>
+
+  </configuration>
+ */
+@ToString
 public class Configuration
 {
-    @SuppressWarnings( "FieldCanBeLocal" )
-    private final String DISABLE_GRAB_EXTENSION = "grabPopulatorDisable";
 
     @SuppressWarnings( "FieldCanBeLocal" )
-    private final String ERROR_ON_MISMATCH = "grabPopulatorErrorOnMismatch";
+    private static final String ERROR_ON_MISMATCH = "grabPopulatorErrorOnMismatch";
 
     @SuppressWarnings( "FieldCanBeLocal" )
-    private final String ADD_AT_END = "grabPopulatorAddAtEnd";
+    private static final String ADD_AT_END = "grabPopulatorAddAtEnd";
 
     @SuppressWarnings( "FieldCanBeLocal" )
-    private final String VERIFY_DEPS = "grabPopulatorVerifyDependencies";
+    private static final String VERIFY_DEPS = "grabPopulatorVerifyDependencies";
 
     @Getter
-    private boolean isDisabled;
+    private boolean errorOnMismatch = true;
 
     @Getter
-    private boolean errorOnMismatch;
+    private boolean verifyDependencies = true;
 
     @Getter
-    private boolean verifyDependencies;
+    private boolean atEnd = true;
 
+    @JacksonXmlElementWrapper(localName = "include")
+    @JacksonXmlProperty( localName = "directory")
     @Getter
-    private boolean atEnd;
+    private final List<String> directories = Collections.emptyList();
 
-    public void init( Properties properties )
-    {
-        init ( properties, Collections.EMPTY_MAP) ;
-    }
 
-    public void init( Map sProperties, Map uProperties )
+    public void updateConfiguration( Properties sProperties, Properties uProperties )
     {
         Properties unified = new Properties();
         unified.putAll( sProperties );
         unified.putAll( uProperties );
 
-        isDisabled = "true".equalsIgnoreCase( unified.getProperty( DISABLE_GRAB_EXTENSION ) ) || "true".equalsIgnoreCase(
-                        System.getenv( DISABLE_GRAB_EXTENSION ) );
-
-        errorOnMismatch = Boolean.parseBoolean( unified.getProperty( ERROR_ON_MISMATCH, "true" ) );
-        atEnd = Boolean.parseBoolean( unified.getProperty( ADD_AT_END, "true" ) );
-        verifyDependencies = Boolean.parseBoolean( unified.getProperty( VERIFY_DEPS, "true" ) );
+        if ( unified.containsKey( ERROR_ON_MISMATCH ) )
+        {
+            errorOnMismatch = Boolean.parseBoolean( unified.getProperty( ERROR_ON_MISMATCH ) );
+        }
+        if ( unified.containsKey( ADD_AT_END ) )
+        {
+            atEnd = Boolean.parseBoolean( unified.getProperty( ADD_AT_END ) );
+        }
+        if ( unified.containsKey( VERIFY_DEPS ))
+        {
+            verifyDependencies = Boolean.parseBoolean( unified.getProperty( VERIFY_DEPS ) );
+        }
     }
 }

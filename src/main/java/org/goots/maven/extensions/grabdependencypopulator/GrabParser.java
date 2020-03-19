@@ -31,8 +31,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +65,7 @@ public class GrabParser
     private void searchFile ( Path target)
     {
         logger.debug( "Processing {}", target );
+
         Files.readAllLines( target ).stream().filter( s -> s.contains( "@Grab" ) ).forEach( s -> {
             // Strip all whitespace as it makes the matching simpler.
             s = s.replaceAll( "\\s+", "" );
@@ -123,10 +126,43 @@ public class GrabParser
         return d;
     }
 
-    public void searchGroovyFiles( File root) throws IOException {
-        Files.walk(root.toPath()).
-                filter(Files::isRegularFile).
-                filter(f -> f.toString().endsWith(".groovy")).
-                forEach( this::searchFile );
+    public void searchGroovyFiles( File root, List<String> dirs ) throws IOException
+    {
+        final List<Path> directories = new ArrayList<>();
+        final Path rootPath = root.toPath();
+
+        if ( dirs.isEmpty() )
+        {
+            directories.add( rootPath );
+        }
+        else
+        {
+            dirs.forEach( d -> directories.add( new File( root, d).toPath() ) );
+        }
+
+        for ( Path r : directories )
+        {
+            if ( ! r.toFile().exists() )
+            {
+                throw new IOException("No such directory '" + r + "' to start search from.");
+            }
+            Files.find( r, Integer.MAX_VALUE,
+                        ( filePath, fileAttr ) -> fileAttr.isRegularFile() && filePath.getFileName()
+                                                                                      .toString()
+                                                                                      .endsWith( ".groovy" ) )
+                 .filter( f -> {
+                     // Ignore any target directory in any module or submodule.
+                     final Path relative = rootPath.relativize( f );
+                     for ( int i = 0; i < relative.getNameCount(); i++ )
+                     {
+                         if ( "target".equals( relative.getName( i ).toString() ) )
+                         {
+                             return false;
+                         }
+                     }
+                     return true;
+                 } )
+                 .forEach( this::searchFile );
+        }
     }
 }
