@@ -1,5 +1,5 @@
-[![Build Status (Travis CI)](https://travis-ci.org/rnc/grab-dependency-populator.svg?branch=master)](https://travis-ci.org/rnc/grab-dependency-populator.svg?branch=master)
 
+[![Actions Status](https://github.com/rnc/grab-dependency-populator/workflows/CI/badge.svg)](https://github.com/rnc/grab-dependency-populator/workflows/CI/actions)
 
 # Maven extension to add dependencies and repositories specified in Grape `@Grab`/`@GrabResolver` annotations.
 
@@ -63,6 +63,6 @@ An xml file, named as `grabDependencyPopulator.xml` may be placed within `<proje
 ```
 The 'include/directory' denotes a list of directories the extension will start searching from. If it is *not* included then the tool will search all directories from the root (excluding `target` build directories).
 
-#### Properties 
+#### Properties
 
 The extension will also check system properties (using the naming in the table above) that are available within Maven.
