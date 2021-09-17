@@ -79,10 +79,7 @@ public class GrabParserTest
 
         assertEquals( 4, dependencies.size() );
         assertTrue( dependencies.containsKey( SimpleProjectRef.parse( "org.yaml:snakeyaml" ) ) );
-        assertTrue( systemOutRule.getLog().contains(
-                        "Multiple dependencies with different versions detected: Dependency "
-                                        + "{groupId=org.yaml, artifactId=snakeyaml, version=1.01, type=jar} versus "
-                                        + "Dependency {groupId=org.yaml, artifactId=snakeyaml, version=1.21, type=jar}" ) );
+        assertTrue( systemOutRule.getLog().contains("Multiple dependencies with different versions detected:" ) );
     }
 
     @Test
