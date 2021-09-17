@@ -62,7 +62,7 @@
     <javaVersion>1.8</javaVersion>
     <javaTestVersion>${javaVersion}</javaTestVersion>
     <mavenVersion>3.3.1</mavenVersion>
-    <jacksonVersion>2.10.3</jacksonVersion>
+    <jacksonVersion>2.12.5</jacksonVersion>
 
     <it.maven.home>${project.build.directory}/apache-maven-${mavenVersion}</it.maven.home>
     <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
